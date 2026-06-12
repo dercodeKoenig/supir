@@ -9,7 +9,7 @@ python3.10 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 
 # install correct torch version first
-.venv/bin/python -m pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+.venv/bin/python -m pip install --pre torch torchvision torchaudio
 
 # prepare for building requirements
 .venv/bin/python -m pip install wheel setuptools
