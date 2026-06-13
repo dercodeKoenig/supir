@@ -18,16 +18,16 @@ python3.10 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 
 
-## build xformers for rtx 5090
+## build xformers for rtx 5090, use cuda toolkit version that pytorch was compiled with
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
 sudo dpkg -i cuda-keyring_1.1-1_all.deb
 sudo apt-get update
-sudo apt-get -y install cuda-toolkit-12-8
+sudo apt-get -y install cuda-toolkit-13-0
 .venv/bin/python -m pip install ninja
 # 12 for rtx5090
 export TORCH_CUDA_ARCH_LIST="12.0"  
-export CUDA_HOME=/usr/local/cuda-12.8
-export PATH=/usr/local/cuda-12.8/bin:$PATH
+export CUDA_HOME=/usr/local/cuda-13.0
+export PATH=/usr/local/cuda-13.0/bin:$PATH
 .venv/bin/python -m pip install --no-build-isolation --no-cache-dir git+https://github.com/dercodeKoenig/xformers
 
 #huggingface-cli download liuhaotian/llava-v1.5-13b --local-dir llava-v1.5-13b --local-dir-use-symlinks False
