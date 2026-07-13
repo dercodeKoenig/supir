@@ -12,7 +12,7 @@ python3.10 -m venv .venv
 .venv/bin/python -m pip install --pre torch torchvision torchaudio
 
 # prepare for building requirements
-.venv/bin/python -m pip install wheel "setuptools<81.0.0"
+.venv/bin/python -m pip install wheel setuptools
 
 # install requirements
 .venv/bin/python -m pip install -r requirements.txt
