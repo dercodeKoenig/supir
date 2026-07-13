@@ -10,6 +10,10 @@ accelerate>=1.1.0
 bitsandbytes>=0.45.0
 diffusers>=0.31.0
 
+wheel
+setuptools<81.0.0
+packaging
+
 # Foundation & Utilities
 numpy
 requests
