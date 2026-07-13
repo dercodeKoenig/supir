@@ -25,7 +25,7 @@ scikit-learn
 einops
 einops-exts
 timm
-openai-clip
+openai-clip==1.0.1
 fsspec
 kornia
 matplotlib
