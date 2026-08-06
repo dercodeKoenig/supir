@@ -1,7 +1,10 @@
 import os
 import sys
 
+# Change working directory to the directory of this script
 script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
 if script_dir not in sys.path:
     sys.path.insert(0, script_dir)
     
@@ -20,7 +23,7 @@ analyzer_model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_cod
 processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
 print("Florence 2 loaded successfully!")
 
-supir_model = create_SUPIR_model(os.path.join(script_dir, 'options/SUPIR_v0.yaml'), SUPIR_sign="Q")
+supir_model = create_SUPIR_model('options/SUPIR_v0.yaml', SUPIR_sign="Q")
 supir_model.half()
 supir_model.ae_dtype = convert_dtype("bf16")
 supir_model.model.dtype = convert_dtype("fp16")
@@ -28,7 +31,7 @@ print("SUPIR model loaded successfully!")
 
 supir_model_tiled = None
 if allow_tiled:
-    supir_model_tiled = create_SUPIR_model(os.path.join(script_dir, 'options/SUPIR_v0_tiled.yaml'), SUPIR_sign="Q")
+    supir_model_tiled = create_SUPIR_model('options/SUPIR_v0_tiled.yaml', SUPIR_sign="Q")
     supir_model_tiled.half()
     supir_model_tiled.ae_dtype = convert_dtype("bf16")
     supir_model_tiled.model.dtype = convert_dtype("fp16")
