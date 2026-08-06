@@ -1,16 +1,13 @@
 import os
+
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
-import math
 import random
 import time
-import numpy as np
-import cv2
 import torch
 from SUPIR.util import create_SUPIR_model, PIL2Tensor, Tensor2PIL, convert_dtype
 from transformers import AutoProcessor, AutoModelForCausalLM
-from PIL import Image, ImageDraw, ImageFilter
-import gc
+
 allow_tiled = False
 
 model_id = 'microsoft/Florence-2-large'
@@ -45,16 +42,17 @@ def get_supir_model(tiled):
         torch.cuda.empty_cache()
         return supir_model.cuda()
 
+
 def run_analysis(prompt, image):
     analyzer_model.cuda()
     inputs = processor(text=prompt, images=image, return_tensors="pt").to('cuda', torch.float16)
     generated_ids = analyzer_model.generate(
-      input_ids=inputs["input_ids"].cuda(),
-      pixel_values=inputs["pixel_values"].cuda(),
-      max_new_tokens=200,
-      early_stopping=False,
-      do_sample=False,
-      num_beams=3,
+        input_ids=inputs["input_ids"].cuda(),
+        pixel_values=inputs["pixel_values"].cuda(),
+        max_new_tokens=200,
+        early_stopping=False,
+        do_sample=False,
+        num_beams=3,
     )
     generated_text = processor.batch_decode(generated_ids, skip_special_tokens=False)[0]
     parsed_answer = processor.post_process_generation(
@@ -67,8 +65,8 @@ def run_analysis(prompt, image):
     torch.cuda.empty_cache()
     return parsed_answer
 
-def upscale(img, scale, captions):
 
+def upscale(img, scale, captions):
     LQ_ips = img
     LQ_img, h0, w0 = PIL2Tensor(LQ_ips, scale, min_size=512)
     LQ_img = LQ_img.unsqueeze(0).to("cuda")[:, :3, :, :]
@@ -78,8 +76,8 @@ def upscale(img, scale, captions):
         # the program will just append prompt and p_p together
         captions = captions.rstrip('. ,') + ', '
     else:
-        captions = "" # Handle the empty case safely
-    
+        captions = ""  # Handle the empty case safely
+
     print(img.size, scale, LQ_img.shape, captions)
 
     t1 = time.time()
@@ -91,13 +89,13 @@ def upscale(img, scale, captions):
             print(f"--- VRAM Protection: Using Tiled Model ({w_scaled}x{h_scaled}) ---")
             needs_tiling = True
 
-    model = get_supir_model(tiled=needs_tiling)    
+    model = get_supir_model(tiled=needs_tiling)
 
     control_scale = 0.98
-    cfg_scale = 3.0   
+    cfg_scale = 3.0
     s_noise = 0.98
     cfg_scale_start = 1.2
-    color_fix_type='Wavelet'
+    color_fix_type = 'Wavelet'
     restoration_scale = -1
 
     with torch.no_grad():
@@ -120,21 +118,15 @@ def upscale(img, scale, captions):
             control_scale_start=0
         )
 
-
     t2 = time.time()
     print("upscale done in ", t2 - t1)
 
     return Tensor2PIL(samples[0], h0, w0)
 
 
-def enhance(image, scale, description = None):
-
+def enhance(image, scale, description=None):
     if description is None:
-        #description = run_analysis("<DETAILED_CAPTION>", image)["<DETAILED_CAPTION>"]
         description = run_analysis("<CAPTION>", image)["<CAPTION>"]
         print("generated description:", description)
-
     upscaled = upscale(image, scale, description)
     return upscaled
-    #return image
-    
