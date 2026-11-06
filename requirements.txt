@@ -29,7 +29,7 @@ matplotlib
 ninja
 omegaconf
 open-clip-torch==2.24.0 # new versions do not work
-opencv-python-headless
+opencv-python
 pandas
 Pillow
 pytorch-lightning
